@@ -1,0 +1,76 @@
+                          Dax Functions
+
+                  (New Measure)
+
+1. Total Transaction Value = SUM(Paytm[Transaction Value])
+
+2. Total Revenue = SUM(Paytm[Revenue])
+
+3. Retained Users = CALCULATE(
+    COUNT(Paytm[User ID]),
+    Paytm[User Retention] = "Retained"
+)
+
+4. New Users = CALCULATE(
+    COUNT(Paytm[User ID]),
+    Paytm[User Retention] = "New"
+)
+
+5. Churned Users = CALCULATE(
+    COUNT(Paytm[User ID]),
+    Paytm[User Retention] = "Churned"
+)
+
+6. Avg Transaction Value = AVERAGE(Paytm[Transaction Value])
+
+7. Retention Rate = DIVIDE(
+    CALCULATE(COUNT(Paytm[User ID]), Paytm[User Retention] = "Retained"),
+    COUNT(Paytm[User ID]),
+    0
+) * 100
+
+8. Transactions by City = COUNT(Paytm[Transaction ID])
+
+9. Revenue per Transaction = DIVIDE(SUM(Paytm[Revenue]), COUNT(Paytm[Transaction ID]))
+
+10. Revenue by User Type = CALCULATE(
+    SUM(Paytm[Revenue]),
+    Paytm[User Type] = "New" || Paytm[User Type] = "Returning"
+)
+
+
+11. Users Who Transacted = CALCULATE(COUNT(Paytm[User ID]), Paytm[Transaction ID] <> BLANK())
+
+
+==================================================================
+
+                       (New Columns)
+
+1. Transaction Day = WEEKDAY(Paytm[Date], 2) -- Monday as 1, Sunday as 7
+
+2. Age Group = SWITCH(
+    TRUE(),
+    Paytm[User Age] <= 25, "Young",
+    Paytm[User Age] > 25 && Paytm[User Age] <= 45, "Middle-Aged",
+    Paytm[User Age] > 45, "Senior"
+)
+
+3. Time Slot = SWITCH(
+    TRUE(),
+    Paytm[Time of Day] < 12, "Morning",
+    Paytm[Time of Day] >= 12 && Paytm[Time of Day] < 18, "Afternoon",
+    Paytm[Time of Day] >= 18, "Evening"
+)
+
+
+====================================================================
+
+                             
+                           (New Table)
+
+1. User Funnel = UNION(
+    SELECTCOLUMNS(Paytm, "Stage", "Total Users", "Value", COUNT(Paytm[User ID])),
+    SELECTCOLUMNS(Paytm, "Stage", "Users Who Transacted", "Value", COUNT(Paytm[Transaction ID])),
+    SELECTCOLUMNS(Paytm, "Stage", "Retained Users", "Value", COUNT(Paytm[User ID]))
+)
+                  
